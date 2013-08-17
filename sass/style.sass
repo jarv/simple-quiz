@@ -1,0 +1,249 @@
+@import 'bourbon/bourbon'
+
+// Color defintions
+
+$orange_red: #E48743
+$yellow_orange: #EDC571
+$yellow: #FDD56C
+$light_blue: #81C6DD
+$dark_blue: #27709b
+$mantis: #90CA77
+$gray: #A9A9A9
+$shade-gray: #939393
+$pale-yellow: rgb(250, 255, 189)
+$nav_width: 355px
+$nav_background: $dark_blue
+
+// Deck grid area
+$deck_background: lighten($light_blue, 30%)
+$card_shade_percent: 50%
+$card_background: lighten($light_blue, 25%)
+
+// Question input box
+
+$qi_textarea_width: 175px
+$qi_textarea_height: 120px
+$qi_img_preview_height: 180px
+$qi_img_preview_width: 150px
+$qi_img_border_width: 1px
+$qi_textarea_border_width: 1px
+
+$qi_submit_width: 150px
+$qi_submit_height: 40px
+
+$add_card_height: 20px
+$add_card_color: white
+
+$deck_header_height: 20px
+$deck_header_background: $dark-blue
+
+#deck_view
+
+  #site_nav
+    div#heading
+      @include clearfix
+      background-color: lighten($nav_background, 10%)
+      a
+        color: white
+        text-decoration: none
+      div#hleft
+        padding: 5px
+        float: left
+        width: 200px
+      div#hright
+        margin-top: 10px
+        margin-left: 215px
+        margin-right: 10px
+        text-align: right
+    #flashed_messages
+      background-color: $yellow_orange
+      color: white
+    #login_form
+      label
+        width: 150px
+        display: block
+        vertical-align: middle
+        float: left
+        clear: left
+        font-size: 18px
+      input
+        outline: none
+      input#submit
+        @include button
+      li
+        font-size: 16px
+        color: $orange_red
+
+    
+    #accordion
+      h2
+        cursor: pointer
+        outline: none
+      div#featured
+        @include clearfix
+        a.featured_item
+          outline: none
+          color: $yellow_orange
+          // display: block
+          width: 100%
+          text-decoration: none
+          &:hover
+            cursor: pointer
+            background-color: lighten($dark_blue, 1%)
+  
+  #site_nav
+    @include linear_gradient($nav_background, darken($nav_background, 10%))
+    @include clearfix
+    background-color: $nav_background
+    color: white
+    width: $nav_width
+    height: 100%
+    position: absolute
+    float: left
+
+    // begin quiz_input area on nav
+    #quiz_input
+      //position: relative
+      @include clearfix
+      background-color: $light_blue
+
+      div#quiz_input_submit
+        text-align: center
+        a#submit_card
+          @include button
+          width: 110px
+        a#delete_card
+          @include button(red)
+          width: 110px
+
+      div.quiz_input
+        clear: both
+        @include clearfix
+        padding: 5px
+        div.img_preview
+          float: left
+
+        div.card_input
+          width: $qi_textarea_width
+          margin-left: 8px
+          float: left
+
+        div.icon_label
+          clear: both
+          float: left
+
+      div.img_preview
+        width: $qi_img_preview_width
+        height: $qi_img_preview_height
+        background-color: #d1e2e8
+        border: $qi_img_border_width solid $dark_blue
+
+      textarea.text_preview
+        font-size: 18px
+        color: darken($dark_blue, 10%)
+        width: $qi_textarea_width
+        height: $qi_textarea_height
+        border: $qi_textarea_border_width solid $dark_blue
+        resize: none
+      
+      .thumbnail_preview
+        max-width: $qi_img_preview_width
+        max-height: $qi_img_preview_height
+
+      img.board_preview
+        z-index: -1
+
+      .icon_picture
+        z-index: 1
+        //text_shadow:1px 1px #9E3B33
+
+      // Image download button workarounds
+      label.filebutton
+        width: 20px
+        height: 20px
+        overflow: hidden
+        position: relative
+        span.icon_text
+          font-size: 12px
+        span input
+          z-index: 999
+          line-height: 0
+          font-size: 14px
+          text-align: right
+          position: absolute
+          top: 5px
+          left: 0px
+          opacity: 0
+          filter: alpha(opacity = 0)
+          -ms-filter: "alpha(opacity=0)"
+          margin: 0
+          padding: 0
+      // end nav quiz_input area
+
+  #content
+    padding: 10px 10px 10px 420px
+    display: block
+    border: 1px dashed #333
+    background-color: $deck_background
+    #deck_header
+      height: $deck_header_height
+      background-color: $deck_header_background
+      @include clearfix
+      #add_card
+        float: left
+        width: 100px
+        a
+          color: $add_card_color
+        text-align: center
+      #start_quiz
+        width: 100px
+        float: left
+        a
+          color: $add_card_color
+        
+
+    #container 
+      position: relative
+      .box
+        cursor: pointer
+        background-color: $deck_background
+        border-radius: 6px
+        width: 150px
+        margin: 5px
+        font-size: 9px
+        line-height: 1.4em
+        float: left
+        border: 1px solid $dark_blue
+        .card_front
+          @include clearfix
+          background-color: $card_background
+          clear: both
+          margin: 5px
+          padding: 5px
+          .front_img
+            float: left
+          .front_text
+            float: left
+
+        .card_back
+          @include clearfix
+          background-color: $card_background
+          clear: both
+          margin: 3px
+          padding: 5px
+          .back_img
+            float: left
+          .back_text
+            float: left
+
+
+      .shade
+        background-color: shade($card_background, 10%)
+      .select
+        border: 2px solid $dark_blue
+        
+
+
+// End deck_view
+
+

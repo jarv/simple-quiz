@@ -1,0 +1,179 @@
+{% from "security/_macros.html" import render_field_with_errors, render_field %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+  <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="stylesheet" href="css/normalize.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.0/css/font-awesome.css" rel="stylesheet">
+    <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+  </head>
+  <body>
+    <div id='deck_view'>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+      <nav id="site_nav">
+        <div id="heading">
+          <div id="hleft">
+            <h1> <a href="/">Simple Quiz</a></h1>
+          </div>
+          <div id="hright">
+            {% if current_user.is_authenticated() %}
+            <p>{{ current_user.email }}.</p> <a href="/logout">logout</a>
+            {% else %}
+            <a href="#" id="login_link">login</a> / <a href="#" id="register_link">register</a>
+            {% endif %}
+          </div>
+        </div>
+        <form id="login_form" action="/" method="POST" name="login_form" 
+          style="display: {{'inline' if login_user_form.errors else 'none'}};">
+          {{ login_user_form.hidden_tag() }}
+          {{ render_field_with_errors(login_user_form.email) }}
+          {{ render_field_with_errors(login_user_form.password) }}
+          {{ render_field_with_errors(login_user_form.remember) }}
+          {{ render_field(login_user_form.submit) }}
+        </form>
+        <div id="quiz_input" style="display:none;">
+          <form action="" id="update_card" method="POST" name="update_card">
+            <div id="quiz_input_header" class="quiz_input">
+              <a href="#" id="hide_quiz_input">close <i class="icon-remove"></i></a>
+            </div>
+
+            <div id="quiz_input_front" class="quiz_input">
+              <div id="front_img_preview" class="img_preview"></div>
+              <div id="front_card_input" class="card_input">
+                <textarea tabindex=1 id="front_input" class="text_preview" name="front"></textarea>
+                <div id="front_icon_label" class="icon_label">
+                  <label id="top_icon" class="icon-picture icon-2x filebutton">
+                    <span class="icon_text">click to change image</span>
+                    <span><input type="file" class="fileupload" id='front_img' name="front_img"></span>
+                  </label>
+                </div> 
+              </div>
+            </div>
+            <div id="quiz_input_back" class="quiz_input">
+              <div id="back_img_preview" class="img_preview"></div>
+              <div id="back_card_input" class="card_input">
+                <textarea tabindex=2 id="back_input" class="text_preview" name="back" ></textarea>
+                <div id="back_icon_label" class="icon_label">
+                  <label id="back_icon" class="icon-picture icon-2x filebutton">
+                    <span class="icon_text">click to change image</span>
+                    <span><input type="file" class="fileupload" id='back_img' name="back_img"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div id="quiz_input_submit" class="quiz_input">
+              <a tabindex=3 id="submit_card" class="btn" href="#"><i class="icon-circle-arrow-right icon-2x"> Submit</i></a>
+              <a id="delete_card" class="btn" href="#"><i class="icon-remove icon-2x"> Delete</i></a>
+            </div>
+          </form>
+        </div>
+
+        <div id="accordion">
+
+          <h2> Featured </h2>
+          <div id="featured">
+          </div>
+
+          <h2> All Quizes </h2>
+
+          <ul>
+            <li> herp derp </li>
+            <li> herp derp </li>
+            <li> herp derp </li>
+            <li> herp derp </li>
+            <li> herp derp </li>
+            <li> herp derp </li>
+            <li> herp derp </li>
+            <li> herp derp </li>
+          </ul>
+
+        </div>
+        <div id="login_box" style="display:none;">
+          <form action="/login" method="POST" name="login_user_form">
+            <div style="display:none;">
+              <input id="csrf_token" name="csrf_token" type="hidden" value="">
+              <input id="next" name="next" type="hidden" value="">
+            </div>
+          <p> <label for="email">Email:</label> <input id="email" name="email" type="text" value=""></p>
+          <p> <label for="password">Password</label> <input id="password" name="password" type="password" value=""> </p>
+          <p><input id="submit" name="submit" type="submit" value="Login"></p>
+         </form>
+        </div>
+
+        <div id='register_box' style='display: none'>
+        </div>
+        <div id="quizzes"> </div>
+      </nav>  <!-- end nav -->
+
+      <div id="content">
+        <div id="deck_header">
+          <div id="add_card"><a id="click_add_card" href="#">Add Card</a></div>
+          <div id="start_quiz"><a id="click_start_quiz" href="#">Start Quiz</a></div>
+        </div>
+
+        <div id="container"> </div>
+        <div id="quiz" style="display: none">
+          <div id="quiz_top"></div>
+          <div id="quiz_bottom"></div>
+        </div>
+      </div>
+
+      <!-- start js vendor includes -->
+      <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+      <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+      <script src="js/vendor/jquery.masonry.min.js"></script>
+      <script src="js/vendor/underscore-min.js"></script>
+      <script src="js/vendor/jquery.ui.widget.js"></script>
+      <script src="js/vendor/load-image.min.js"></script>
+      <script src="js/vendor/canvas-to-blob.min.js"></script>
+      <script src="js/vendor/jquery.iframe-transport.js"></script>
+      <script src="js/vendor/jquery.fileupload.js"></script>
+      <script src="js/vendor/jquery.fileupload-process.js"></script>
+      <script src="js/vendor/jquery.fileupload-image.js"></script>
+      <script src="js/vendor/backbone-min.js"></script>
+      <!-- end js vendor includes -->
+
+      <script type="text/template" id="box_template">
+        <div class='card_front'>
+          <div class='front_img'><%= front_img %></div>
+          <div class='front_text'><%= front_text %></div>
+        </div>
+        <div class='card_back'>
+          <div class='back_img'><%= back_img %></div>
+          <div class='back_text'><%= back_text %></div>
+        </div>
+      </script>
+
+      <script type="text/template" id="featured_template">
+        <a class="featured_item" id="click_select_deck" href="#deck/<%= slug %>"><%= title %></a>
+      </script>
+
+
+      <script src="js/plugins.js"></script>
+      <script src="js/main.js"></script>
+      <!--
+      <script>
+        var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src='//www.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));
+      </script>
+      -->
+  </div>
+  </body>
+</html>
