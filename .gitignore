@@ -1,4 +1,7 @@
 README.txt
-sample_imgs/
+sample_imgs/*.jpg
+sample_imgs/*.png
+sample_imgs/*.gif
+sample_imgs/*.jpeg
 .sass-cache/
 static/js/coffee-js/*.js
