@@ -5,3 +5,6 @@ sample_imgs/*.gif
 sample_imgs/*.jpeg
 .sass-cache/
 static/js/coffee-js/*.js
+static/js/simple-quiz.js
+static/css/style.css
+static/test.html
