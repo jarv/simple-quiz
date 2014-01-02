@@ -1,14 +1,10 @@
 from simple_quiz import app
-from simple_quiz.models import Deck, Card, User
+from simple_quiz.models import Deck, Card, CardStates, UserCardData
 from simple_quiz.models import user_datastore, is_authorized
-from flask import request, render_template, abort, flash, redirect
-from flask.ext.security import Security, MongoEngineUserDatastore, \
-    UserMixin, RoleMixin, login_required, LoginForm
+from flask import request, render_template, abort
+from flask.ext.security import login_required, LoginForm
 from flask.ext.login import current_user, login_user
-from werkzeug import secure_filename
 from werkzeug import Response
-
-import os
 
 import simplejson
 from mongoengine.queryset import DoesNotExist
@@ -28,10 +24,12 @@ def index():
 
     return render_template('index.html', login_user_form=form)
 
+
 @app.route('/login_test')
 @login_required
 def login_test():
     return "hello world"
+
 
 @app.route('/img/<img_type>/<cid>/<gridfs_id>', defaults={'size': None},
            methods=["GET"])
@@ -62,7 +60,7 @@ def update_card():
 
     try:
         deck = Deck.objects.get(id=request.form['deck_id'])
-    except ValidationError as e:
+    except ValidationError:
         abort(404)
 
     if not is_authorized(current_user, deck):
@@ -119,79 +117,12 @@ def update_card():
     return simplejson.dumps(ret_status)
 
 
-@app.route("/card/<id>", methods=["PUT", "POST", "DELETE"])
-def card(id):
-    if request.method == "DELETE":
-        return 'ok'
-    data = simplejson.loads(request.data)
-    (card, created) = Card.objects.get_or_create(id=id)
-    if 'front_text' in data:
-        card.front_text = data['front_text']
-    if 'back_text' in data:
-        card.back_text = data['back_text']
-    card.save()
-    return simplejson.dumps({'status': 'ok'})
-
-
-
 @app.route('/whoami')
 def whoami():
     if current_user.is_authenticated():
         return simplejson.dumps({'loggedin': True})
     else:
         return simplejson.dumps({'loggedin': False})
-
-
-@app.route('/update-deck/<slug>', methods=['POST'])
-#@login_required
-def update_deck(slug=None):
-    """
-    Replaces or creates <slug> with post
-    data which should be stringify'd
-    json that looks like the following
-
-    json_data:  json_string({
-                    title:
-                    public:
-                    cards: [
-
-                    ]
-                })
-
-    returns:
-
-    {
-        status: {created, updated, error}
-        msg: ''
-    }
-    """
-
-    try:
-        data = simplejson.loads(request.form['json_data'])
-        (d, created) = Deck.objects.get_or_create(slug=slug)
-        d.public = data['public']
-        d.title = data['title']
-        # create the cards
-        d.cards = [Card(**card) for card in data['cards']]
-        # associate the user
-        d.author = current_user.to_dbref()
-        d.save()
-
-    except Exception as e:
-        print e
-        return(simplejson.dumps({'status': 'error'}))
-        raise
-
-    if created:
-        return(simplejson.dumps({'status': 'created'}))
-    else:
-        return(simplejson.dumps({'status': 'updated'}))
-
-
-@app.route('/deck-edit')
-@login_required
-def view():
-    return render_template('deck-edit.html')
 
 
 @app.route('/featured_decks')
@@ -204,9 +135,39 @@ def featured_decks():
         decks = Deck.objects.filter(featured=True)
     except DoesNotExist:
         return simplejson.dumps({})
-    print [{'title': deck['title']} for deck in decks]
-    return simplejson.dumps([{'title': deck['title'],
-                              'slug': deck['slug']} for deck in decks])
+    featured_decks = []
+    for deck in decks:
+
+        wrong = correct = learning = 0
+        if current_user.is_authenticated():
+            user_cards = UserCardData.objects.filter(user=current_user.to_dbref(), card__in=deck.cards)
+            wrong = user_cards.filter(card_state=CardStates.wrong).count()
+            correct = user_cards.filter(card_state=CardStates.correct).count()
+            learning = user_cards.filter(card_state=CardStates.learning).count()
+
+        featured_decks.append(
+            {'title': deck['title'],
+             'slug': deck['slug'],
+             'wrong': wrong,
+             'correct': correct,
+             'learning': learning})
+
+    return simplejson.dumps(featured_decks)
+
+@app.route('/card_data')
+@login_required
+def card_data():
+    """
+    Returns a dictionary of
+    cards for a user
+    """
+    if 'card_ids' in request.form:
+        # filter returned data by list of
+        # card ids
+        pass
+    else:
+        card_data = {str(c.card.id): {'wrong': c.wrong, 'correct': c.correct, 'learning': c.learning} for c in current_user.card_data}
+    return simplejson.dumps(card_data)
 
 
 @app.route('/deck/<slug>')
@@ -214,9 +175,7 @@ def featured_decks():
 def deck(slug=None):
     """
     Returns information about a deck as a
-    JSON object.  If the deck is not public
-    ensure the at the logged in user owns
-    the deck.
+    JSON object.
 
     {
         id:
@@ -245,12 +204,24 @@ def deck(slug=None):
             front_img = 'img/front_img/{cid}/{grid_id}'.format(cid=card.id,
                         grid_id=card['front_img'].grid_id)
         if card['back_img'].grid_id is not None:
-            back_img = 'img/back_img/{cid}/{grid_id}'.format(cid=card.id,
-                        grid_id=card['back_img'].grid_id)
+            back_img = 'img/back_img/{cid}/{grid_id}'.format(
+                cid=card.id,
+                grid_id=card['back_img'].grid_id)
+
+        wrong = correct = learning = 0
+        if current_user.is_authenticated():
+            user_cards = UserCardData.objects.filter(user=current_user.to_dbref(), card=card)
+            wrong = user_cards.filter(card_state=CardStates.wrong).count()
+            correct = user_cards.filter(card_state=CardStates.correct).count()
+            learning = user_cards.filter(card_state=CardStates.learning).count()
+
         cards.append(dict(front_img=front_img, back_img=back_img,
                           front_text=card['front_text'],
                           back_text=card['back_text'],
-                          id=str(card.id)))
+                          id=str(card.id),
+                          wrong=wrong,
+                          correct=correct,
+                          learning=learning))
 
     can_write = False
 

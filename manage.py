@@ -1,5 +1,6 @@
 # Set the path
 import os
+os.environ['FLASK_SETTINGS'] = 'cfg/prod.py'
 import sys
 from simple_quiz import app
 from flask.ext.script import Manager, Server
@@ -18,12 +19,4 @@ manager.add_command("runserver", Server(
 
 
 if __name__ == "__main__":
-    os.environ['FLASK_SETTINGS'] = 'cfg/prod.py'
-    test_user = user_datastore.find_user(email='test@example.com')
-    if not test_user:
-        user_datastore.create_user(email='test@example.com', password='test')
-
-    admin_role = user_datastore.find_or_create_role(name="admin")
-    user_datastore.add_role_to_user(test_user, admin_role)
-    test_user.save()
     manager.run()

@@ -39,7 +39,28 @@ $deck_header_background: $dark-blue
 
 #deck_view
 
+  #quiz
+    #quiz_top
+      @include clearfix
+      height: 200px
+      width: 100%
+      border: 1px solid $dark-blue
+    #quiz_bottom
+      @include clearfix
+      height: 200px
+      width: 100%
+      border: 1px solid $dark-blue
   #site_nav
+
+    @include linear_gradient($nav_background, darken($nav_background, 10%))
+    @include clearfix
+    background-color: $nav_background
+    color: white
+    width: $nav_width
+    height: 100%
+    position: absolute
+    float: left
+
     div#heading
       @include clearfix
       background-color: lighten($nav_background, 10%)
@@ -79,7 +100,7 @@ $deck_header_background: $dark-blue
       h2
         cursor: pointer
         outline: none
-      div#featured
+      table#featured
         @include clearfix
         a.featured_item
           outline: none
@@ -91,16 +112,6 @@ $deck_header_background: $dark-blue
             cursor: pointer
             background-color: lighten($dark_blue, 1%)
   
-  #site_nav
-    @include linear_gradient($nav_background, darken($nav_background, 10%))
-    @include clearfix
-    background-color: $nav_background
-    color: white
-    width: $nav_width
-    height: 100%
-    position: absolute
-    float: left
-
     // begin quiz_input area on nav
     #quiz_input
       //position: relative
@@ -178,7 +189,7 @@ $deck_header_background: $dark-blue
           -ms-filter: "alpha(opacity=0)"
           margin: 0
           padding: 0
-      // end nav quiz_input area
+  // end #nav quiz_input area
 
   #content
     padding: 10px 10px 10px 420px

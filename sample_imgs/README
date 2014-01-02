@@ -1,1 +1,2 @@
 test images for ../create_test_data.py
+`wget -nd -r --level 10 -A jpg,jpeg,png,gif --no-parent http://ftpmirror.your.org/pub/wikimedia/images/wikipedia/af/{0,1,2,3}`
