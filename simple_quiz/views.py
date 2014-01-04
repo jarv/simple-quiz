@@ -209,19 +209,25 @@ def deck(slug=None):
                 grid_id=card['back_img'].grid_id)
 
         wrong = correct = learning = 0
+        card_state = CardStates.learning
         if current_user.is_authenticated():
-            user_cards = UserCardData.objects.filter(user=current_user.to_dbref(), card=card)
-            wrong = user_cards.filter(card_state=CardStates.wrong).count()
-            correct = user_cards.filter(card_state=CardStates.correct).count()
-            learning = user_cards.filter(card_state=CardStates.learning).count()
+            card_data = UserCardData.objects.filter(user=current_user.to_dbref(), card=card).first()
+            if card_data:
+                card_state = card_data.card_state
+                wrong = card_data.wrong
+                correct = card_data.correct
+                learning = card_data.learning
 
+        # TODO: Need to calculate whether the card is due
         cards.append(dict(front_img=front_img, back_img=back_img,
                           front_text=card['front_text'],
                           back_text=card['back_text'],
                           id=str(card.id),
                           wrong=wrong,
                           correct=correct,
-                          learning=learning))
+                          learning=learning,
+                          card_state=card_state,
+                          due=True))
 
     can_write = False
 

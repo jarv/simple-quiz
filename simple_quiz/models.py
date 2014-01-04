@@ -4,6 +4,7 @@ from flask.ext.security import Security, MongoEngineUserDatastore, \
 import datetime
 
 class CardStates:
+    review = 0
     correct = 1
     learning = 2
     wrong = 3
@@ -22,6 +23,9 @@ class UserCardData(db.Document):
     wrong = db.IntField()
     correct = db.IntField()
     learning = db.IntField()
+    last_wrong = db.DateTimeField(default=None)
+    last_correct = db.DateTimeField(default=None)
+    last_learning = db.DateTimeField(default=None)
     rev_wrong = db.IntField()
     rev_correct = db.IntField()
     rev_learning = db.IntField()

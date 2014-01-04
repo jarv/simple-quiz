@@ -32,33 +32,9 @@ class CardView extends Backbone.View
     variables = {
       front_text: @model.get('front_text')
       back_text: @model.get('back_text')
-      front_img: ''
-      back_img: ''
+      front_img: @model.get('front_img')
+      back_img: @model.get('back_img')
     }
-    if @model.get('front_img')
-      thumb_front = @model.get('front_img') + '/thumb'
-      full_front = @model.get('front_img')
-      @model.set(
-        {'front_img_thumb':
-          '<img class="board_preview" src="' + thumb_front + '"/>'})
-      @model.set(
-        {'front_img_full':
-          '<img class="board_preview" src="' + full_front + '"/>'})
-      variables.front_img = @model.get('front_img_thumb')
-    if @model.get('back_img')
-      thumb_back = @model.get('back_img') + '/thumb'
-      full_back = @model.get('back_img')
-      @model.set(
-        {'back_img_thumb':
-          '<img class="board_preview" src="' + thumb_back + '"/>'})
-      @model.set(
-        {'back_img_full':
-          '<img class="board_preview" src="' + full_back + '"/>'})
-      variables.back_img = @model.get('back_img_thumb')
-    template = _.template($("#box_template").html(), variables)
-    @$el.html(template)
-    @
-  renderCard: (variables) ->
     template = _.template($("#box_template").html(), variables)
     @$el.html(template)
     @
@@ -72,17 +48,22 @@ class CardView extends Backbone.View
       # toggle the selected state of the previously
       # selected card
       active_deck.selected_card.toggle_selected()
+
+
     clicked_model.toggle_selected()
+
+    variables = {
+      front_text: clicked_model.get('front_text')
+      back_text: clicked_model.get('back_text')
+      front_img: clicked_model.get('front_img')
+      back_img: clicked_model.get('back_img')
+    }
+ 
     if clicked_model.get('is_selected')
       active_deck.selected_card = clicked_model
       $('.box').removeClass('select')
       $(@el).addClass('select')
-      $('#front_img_preview').html('')
-      $('#back_img_preview').html('')
-      $('#front_img_preview').html(clicked_model.get('front_img_full'))
-      $('#back_img_preview').html(clicked_model.get('back_img_full'))
-      $('#front_input').val(clicked_model.get('front_text'))
-      $('#back_input').val(clicked_model.get('back_text'))
+      $('#quiz_input').html(_.template( $('#quiz_input_template').html(), variables ))
       $('#quiz_input').show()
     else
       active_deck.selected_card = null
@@ -97,6 +78,13 @@ class QuizView extends Backbone.View
 
 # game board
 class BoardView extends Backbone.View
+
+  CardStates =
+    review: 0
+    correct: 1
+    learning: 2
+    wrong: 3
+
   el: $('#deck_view')
   events:
     'click #hide_quiz_input': 'hideQuizInput'
@@ -116,17 +104,20 @@ class BoardView extends Backbone.View
     $('#quiz_input').hide()
     $('#quiz').show()
     # create a copy for the quiz
-    to_quiz = _.clone(active_deck.toJSON().cards)
+    to_quiz = (card for card in active_deck.toJSON().cards when card.due)
     # shuffle the cards to quiz
     to_quiz = _.shuffle(to_quiz)
+    # for multiple choice display
+    all_cards = _.clone(to_quiz)
     show_card = () ->
       card = to_quiz.shift()
-      if _.has(user_card_data, card.id)
-        undefined
-      else
-        # Multiple choice
-        console.log(card)
-        $('#quiz_top').html(card.front_text)
+      $('#quiz_top').html(card.front_text)
+      switch (card.card_state)
+        when CardStates.review
+          $('#quiz_bottom').append(_.template( $("#multi_choice_template").html(), card ))
+          card.card_state = CardStates.learning
+        when CardStates.learning
+          card.card_state = CardStates.correct
 
       if to_quiz.length >= 1
         setTimeout(show_card, 1000)
