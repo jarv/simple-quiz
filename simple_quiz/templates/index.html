@@ -94,8 +94,8 @@
 
         <div id="container" style="display:none"> </div>
         <div id="quiz" style="display: none">
-          <div id="quiz_top"></div>
-          <div id="quiz_bottom"></div>
+          <div id="quiz_question"></div>
+          <div id="quiz_answer"><div id="multi_choice"></div></div>
         </div>
       </div>
 
@@ -138,13 +138,6 @@
         </tr>
       </script>
 
-      <script type="text/template" id="multi_choice_template">
-        <div class="multi_choice">
-        <% if (back_img) { %>
-        <img src="<%= back_img %>">
-        <% } %>
-        </div>
-      </script>
       <script type="text/template" id="quiz_input_template">
         <form action="" id="update_card" method="POST" name="update_card">
           <div id="quiz_input_header" class="quiz_input">
@@ -190,6 +183,23 @@
         </form>
       </script>
 
+      <script type="text/template" id="multi_choice_template">
+        <div class="box">
+          <div class="multi_box">
+            <% if (back_img) { %>
+            <img class="board_preview" src="<%= back_img %>/thumb" />
+            <% } %>
+            <%= back_text %>
+          </div>
+        </div>
+      </script>
+
+      <script type="text/template" id="quiz_question_template">
+        <% if (front_img) { %>
+            IMG: <img class="board_preview" src="<%= front_img %>" />
+        <% } %>
+        TEXT: <%= front_text %>
+      </script>
       <script src="js/plugins.js"></script>
       <script src="js/simple-quiz.js"></script>
       <!--

@@ -109,20 +109,30 @@ class BoardView extends Backbone.View
     to_quiz = _.shuffle(to_quiz)
     # for multiple choice display
     all_cards = _.clone(to_quiz)
+    # pre-load images for all cards
+    # for multiple choice
+    for c in all_cards
+      if c.front_img
+        $("<img />").attr("src", c.front_img)
+        $("<img />").attr("src", c.front_img + '/thumb')
+      if c.back_img
+        $("<img />").attr("src", c.back_img )
+        $("<img />").attr("src", c.back_img + '/thumb')
     show_card = () ->
       card = to_quiz.shift()
-      $('#quiz_top').html(card.front_text)
-      switch (card.card_state)
-        when CardStates.review
-          $('#quiz_bottom').append(_.template( $("#multi_choice_template").html(), card ))
-          card.card_state = CardStates.learning
-        when CardStates.learning
-          card.card_state = CardStates.correct
-
+      $('#quiz_question').html(_.template( $("#quiz_question_template").html(), card))
+      $('#multi_choice').html('')
+      all_cards = _.shuffle(all_cards)
+      cnt = 0
+      for c in all_cards.slice(0,8)
+        console.log(cnt)
+        cnt++
+        $box = $(_.template( $("#multi_choice_template").html(), c))
+        $('#multi_choice').append($box).masonry('reload')
       if to_quiz.length >= 1
-        setTimeout(show_card, 1000)
+        setTimeout(show_card, 1500)
   
-    setTimeout(show_card, 1000)
+    setTimeout(show_card, 1500)
 
     undefined
   hideQuizInput: ->
@@ -327,14 +337,20 @@ undefined
 $(document).ready(() ->
   Backbone.history.start()
   # initialize the board
+
+  $multi_choice = $('#multi_choice')
+  $multi_choice.masonry({
+    itemSelector : '.box',
+    columnWidth : 10,
+    isAnimated: false
+  })
+
   $container = $('#container')
-  $container.imagesLoaded(() ->
-    $container.masonry({
-      itemSelector : '.box',
-      columnWidth : 10,
-      isAnimated: false
-    })
-    undefined
-  )
+  $container.masonry({
+    itemSelector : '.box',
+    columnWidth : 10,
+    isAnimated: false
+  })
+
   undefined
 )

@@ -1,7 +1,7 @@
 from simple_quiz import app
 from simple_quiz.models import Deck, Card, CardStates, UserCardData
 from simple_quiz.models import user_datastore, is_authorized
-from flask import request, render_template, abort
+from flask import request, render_template, abort, make_response
 from flask.ext.security import login_required, LoginForm
 from flask.ext.login import current_user, login_user
 from werkzeug import Response
@@ -9,6 +9,9 @@ from werkzeug import Response
 import simplejson
 from mongoengine.queryset import DoesNotExist
 from mongoengine import ValidationError
+
+import imghdr
+
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 
@@ -45,9 +48,14 @@ def get_img(img_type, cid, size, gridfs_id):
         abort(404)
 
     if size == 'thumb':
-        return Response(getattr(card, img_type).thumbnail.read())
+        img = getattr(card, img_type).thumbnail.read()
     else:
-        return Response(getattr(card, img_type).read())
+        img = getattr(card, img_type).read()
+    img_type = imghdr.what(None, h=img)
+    resp = make_response(img)
+    resp.headers['Content-Type'] = 'image/{}'.format(img_type)
+    resp.headers['Cache-Control'] = 'max-age=43200, public'
+    return resp
 
 
 @app.route("/update_card", methods=["POST"])

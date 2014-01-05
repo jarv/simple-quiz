@@ -40,12 +40,13 @@ $deck_header_background: $dark-blue
 #deck_view
 
   #quiz
-    #quiz_top
+    #quiz_question
       @include clearfix
       height: 200px
       width: 100%
+      font-size: 24px
       border: 1px solid $dark-blue
-    #quiz_bottom
+    #quiz_answer
       @include clearfix
       height: 200px
       width: 100%
@@ -212,40 +213,57 @@ $deck_header_background: $dark-blue
         a
           color: $add_card_color
         
+    #multi_choice
+      position: relative
 
     #container 
       position: relative
-      .box
-        cursor: pointer
-        background-color: $deck_background
-        border-radius: 6px
-        width: 150px
-        margin: 5px
-        font-size: 9px
-        line-height: 1.4em
-        float: left
-        border: 1px solid $dark_blue
-        .card_front
-          @include clearfix
-          background-color: $card_background
-          clear: both
-          margin: 5px
-          padding: 5px
-          .front_img
-            float: left
-          .front_text
-            float: left
 
-        .card_back
-          @include clearfix
-          background-color: $card_background
-          clear: both
-          margin: 3px
-          padding: 5px
-          .back_img
-            float: left
-          .back_text
-            float: left
+    .box
+      cursor: pointer
+      background-color: $deck_background
+      border-radius: 6px
+      width: 150px
+      margin: 5px
+      min-height: 60px
+      font-size: 9px
+      line-height: 1.4em
+      float: left
+      border: 1px solid $dark_blue
+
+      .multi_box
+        @include clearfix
+        background-color: $card_background
+        clear: both
+        min-height: 60px
+        margin: 3px
+        padding: 3px
+        .back_img
+          float: left
+        .back_text
+          float: left
+
+      .card_front
+        @include clearfix
+        background-color: $card_background
+        clear: both
+        margin: 5px
+        padding: 5px
+        .front_img
+          float: left
+        .front_text
+          float: left
+
+      .card_back
+        @include clearfix
+        background-color: $card_background
+        clear: both
+        margin: 3px
+        padding: 5px
+        .back_img
+          float: left
+        .back_text
+          float: left
 
 
       .shade
