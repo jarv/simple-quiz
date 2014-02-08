@@ -47,15 +47,14 @@ class Deck(db.Document):
     featured = db.BooleanField(default=False)
     date_modified = db.DateTimeField(default=datetime.datetime.now)
     cards = db.ListField(db.ReferenceField('Card'), default=[])
+    mnenomic = db.StringField(max_length=120)
 
 
 class Card(db.Document):
     user = db.ReferenceField('User')
     public = db.BooleanField(default=True)
     front_text = db.StringField()
-    back_text = db.StringField()
     front_img = db.ImageField(size=(150,180), thumbnail_size=(60,80))
-    back_img = db.ImageField(size=(150,180), thumbnail_size=(60,80))
     date_modified = db.DateTimeField(default=datetime.datetime.now)
 
 user_datastore = MongoEngineUserDatastore(db, User, Role)

@@ -121,12 +121,6 @@
           <% } %>
           <div class='front_text'><%= front_text %></div>
         </div>
-        <div class='card_back'>
-          <% if (back_img) { %>
-          <div class='back_img'><img class="board_preview" src="<%= back_img %>/thumb" /></div>
-          <% } %>
-          <div class='back_text'><%= back_text %></div>
-        </div>
       </script>
 
       <script type="text/template" id="featured_template">
@@ -160,45 +154,21 @@
               </div> 
             </div>
           </div>
-          <div class="quiz_input">
-            <div id="back_img_preview" class="img_preview">
-            <% if (back_img) { %>
-            <img class="board_preview" src="<%= back_img %>" />
-            <% } %>
-            </div>
-            <div class="card_input">
-              <textarea tabindex=2 id="back_input" class="text_preview" name="back" ><%= back_text %></textarea>
-              <div id="back_icon_label" class="icon_label">
-                <label id="back_icon" class="icon-picture icon-2x filebutton">
-                  <span class="icon_text">click to change image</span>
-                  <span><input type="file" class="fileupload" id='back_img' name="back_img"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-          <div id="quiz_input_submit" class="quiz_input">
-            <a tabindex=3 id="submit_card" class="btn" href="#"><i class="icon-circle-arrow-right icon-2x"> Submit</i></a>
-            <a id="delete_card" class="btn" href="#"><i class="icon-remove icon-2x"> Delete</i></a>
-          </div>
         </form>
       </script>
 
       <script type="text/template" id="multi_choice_template">
         <div class="box">
           <div class="multi_box">
-            <% if (back_img) { %>
-            <img class="board_preview" src="<%= back_img %>/thumb" />
-            <% } %>
-            <%= back_text %>
           </div>
         </div>
       </script>
 
       <script type="text/template" id="quiz_question_template">
         <% if (front_img) { %>
-            IMG: <img class="board_preview" src="<%= front_img %>" />
+          <img class="board_preview" src="<%= front_img %>" />
         <% } %>
-        TEXT: <%= front_text %>
+        <%= front_text %>
       </script>
       <script src="js/plugins.js"></script>
       <script src="js/simple-quiz.js"></script>

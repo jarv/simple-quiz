@@ -45,23 +45,18 @@ for x in range(0, 10):
     for y in range(0, 20):
         card_type = choice(card_types)
         front_text = card_questions[y]
-        back_text = card_answers[y]
-        with open(choice(imgs)) as front_img, open(choice(imgs)) as back_img:
+        with open(choice(imgs)) as front_img:
             print front_img.name
-            print back_img.name
 
             if card_type == CardTypes.img_only:
-                c = Card.objects.create(front_img=front_img,
-                                        back_img=back_img)
+                c = Card.objects.create(front_img=front_img)
             elif card_type == CardTypes.text_only:
-                c = Card.objects.create(front_text=front_text,
-                                        back_text=back_text)
+                c = Card.objects.create(front_text=front_text)
             elif card_type == CardTypes.text_and_img:
                 c = Card.objects.create(front_text=front_text,
-                                        back_img=back_img)
-            elif card_type == CardTypes.img_and_text:
-                c = Card.objects.create(back_text=back_text,
                                         front_img=front_img)
+            elif card_type == CardTypes.img_and_text:
+                c = Card.objects.create(front_img=front_img)
             c.user = user
             c.save()
         cards.append(c.to_dbref())

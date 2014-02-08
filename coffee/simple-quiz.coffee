@@ -31,9 +31,7 @@ class CardView extends Backbone.View
   render: ->
     variables = {
       front_text: @model.get('front_text')
-      back_text: @model.get('back_text')
       front_img: @model.get('front_img')
-      back_img: @model.get('back_img')
     }
     template = _.template($("#box_template").html(), variables)
     @$el.html(template)
@@ -54,9 +52,7 @@ class CardView extends Backbone.View
 
     variables = {
       front_text: clicked_model.get('front_text')
-      back_text: clicked_model.get('back_text')
       front_img: clicked_model.get('front_img')
-      back_img: clicked_model.get('back_img')
     }
  
     if clicked_model.get('is_selected')
@@ -95,7 +91,6 @@ class BoardView extends Backbone.View
     'click #click_start_quiz': 'startQuiz'
     'click #click_select_deck': 'clickDeck'
     'change #front_img': 'updateImgFront'
-    'change #back_img': 'updateImgBack'
     'mouseleave #content': 'leaveBoard'
   startQuiz: ->
     # hide the board
@@ -115,9 +110,6 @@ class BoardView extends Backbone.View
       if c.front_img
         $("<img />").attr("src", c.front_img)
         $("<img />").attr("src", c.front_img + '/thumb')
-      if c.back_img
-        $("<img />").attr("src", c.back_img )
-        $("<img />").attr("src", c.back_img + '/thumb')
     show_card = () ->
       card = to_quiz.shift()
       $('#quiz_question').html(_.template( $("#quiz_question_template").html(), card))
@@ -180,7 +172,6 @@ class BoardView extends Backbone.View
     $('#update_card').get(0).reset()
     # clear the file input
     $('#front_img_preview').html('')
-    $('#back_img_preview').html('')
     if active_deck.selected_card
       # toggle the selected state of the previously
       # selected card
@@ -231,12 +222,9 @@ class BoardView extends Backbone.View
         params = {
           'id': json_data.id,
           'front_text': json_data.front_text,
-          'back_text': json_data.back_text
         }
         if json_data.front_img != 'None'
           params.front_img = json_data.front_img
-        if json_data.back_img != 'None'
-          params.back_img = json_data.back_img
         if active_deck.new_card
           active_cards.add(params)
         else
@@ -262,10 +250,6 @@ class BoardView extends Backbone.View
   updateImgFront: (e) ->
     e.preventDefault() #This prevents the form from submitting normally
     @updateImgPreview(e, '#front_img_preview')
-    undefined
-  updateImgBack: (e) ->
-    e.preventDefault() #This prevents the form from submitting normally
-    @updateImgPreview(e, '#back_img_preview')
     undefined
   updateImgPreview: (e, selector) ->
     #Check File API support

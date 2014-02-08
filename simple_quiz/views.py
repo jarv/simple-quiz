@@ -39,7 +39,7 @@ def login_test():
 @app.route("/img/<img_type>/<cid>/<gridfs_id>/<size>", methods=["GET"])
 def get_img(img_type, cid, size, gridfs_id):
 
-    if not img_type or img_type not in ['front_img', 'back_img']:
+    if not img_type or img_type not in ['front_img']:
         abort(404)
 
     try:
@@ -91,8 +91,6 @@ def update_card():
 
     if 'front_img' in request.files:
         img_types.append('front_img')
-    if 'back_img' in request.files:
-        img_types.append('back_img')
     for img_type in img_types:
         data_file = request.files.get(img_type)
         if data_file:
@@ -102,7 +100,6 @@ def update_card():
                 getattr(card, img_type).replace(data_file)
 
     card.front_text = request.form['front']
-    card.back_text = request.form['back']
     card.save()
 
     if is_new_card:
@@ -113,7 +110,6 @@ def update_card():
     ret_status.update({
         'id': str(card.id),
         'front_text': card.front_text,
-        'back_text': card.back_text
     })
 
     for img_type in img_types:
@@ -207,14 +203,9 @@ def deck(slug=None):
     cards = []
     for card in deck.cards:
         front_img = False
-        back_img = False
         if card['front_img'].grid_id is not None:
             front_img = 'img/front_img/{cid}/{grid_id}'.format(cid=card.id,
                         grid_id=card['front_img'].grid_id)
-        if card['back_img'].grid_id is not None:
-            back_img = 'img/back_img/{cid}/{grid_id}'.format(
-                cid=card.id,
-                grid_id=card['back_img'].grid_id)
 
         wrong = correct = learning = 0
         card_state = CardStates.learning
@@ -227,9 +218,8 @@ def deck(slug=None):
                 learning = card_data.learning
 
         # TODO: Need to calculate whether the card is due
-        cards.append(dict(front_img=front_img, back_img=back_img,
+        cards.append(dict(front_img=front_img,
                           front_text=card['front_text'],
-                          back_text=card['back_text'],
                           id=str(card.id),
                           wrong=wrong,
                           correct=correct,
