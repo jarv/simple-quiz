@@ -46,11 +46,27 @@ $deck_header_background: $dark-blue
       width: 100%
       font-size: 24px
       border: 1px solid $dark-blue
+      #quiz_mnemonic
+        font-size: 48px
+        text-align: center
+        width: 100%
+      input
+        outline: none
     #quiz_answer
       @include clearfix
       height: 200px
       width: 100%
       border: 1px solid $dark-blue
+
+    .blur
+      border: 5px solid black
+      -webkit-filter: blur(2px)
+      -moz-filter: blur(2px)
+      -ms-filter: blur(2px)
+      -o-filter: blur(2px)
+      filter: blur(2px)
+      -webkit-transition: -webkit-filter .50s
+
   #site_nav
 
     @include linear_gradient($nav_background, darken($nav_background, 10%))
@@ -231,7 +247,7 @@ $deck_header_background: $dark-blue
       float: left
       border: 1px solid $dark_blue
 
-      .multi_box
+      .answer_box
         @include clearfix
         background-color: $card_background
         clear: both
@@ -253,18 +269,6 @@ $deck_header_background: $dark-blue
           float: left
         .front_text
           float: left
-
-      .card_back
-        @include clearfix
-        background-color: $card_background
-        clear: both
-        margin: 3px
-        padding: 5px
-        .back_img
-          float: left
-        .back_text
-          float: left
-
 
       .shade
         background-color: shade($card_background, 10%)

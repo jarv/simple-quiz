@@ -47,7 +47,9 @@ class Deck(db.Document):
     featured = db.BooleanField(default=False)
     date_modified = db.DateTimeField(default=datetime.datetime.now)
     cards = db.ListField(db.ReferenceField('Card'), default=[])
-    mnenomic = db.StringField(max_length=120)
+    mnemonic = db.ListField(default=[])
+    mnemonic_positions = db.ListField(default=[])
+    round_time = db.IntField()
 
 
 class Card(db.Document):
@@ -56,6 +58,7 @@ class Card(db.Document):
     front_text = db.StringField()
     front_img = db.ImageField(size=(150,180), thumbnail_size=(60,80))
     date_modified = db.DateTimeField(default=datetime.datetime.now)
+    answer = db.IntField()
 
 user_datastore = MongoEngineUserDatastore(db, User, Role)
 security = Security(app, user_datastore)

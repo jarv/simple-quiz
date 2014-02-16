@@ -184,6 +184,7 @@ def deck(slug=None):
     {
         id:
         title:
+        mnemonic:
         author-email:
         author-name:
         public:
@@ -225,6 +226,7 @@ def deck(slug=None):
                           correct=correct,
                           learning=learning,
                           card_state=card_state,
+                          answer=card['answer'],
                           due=True))
 
     can_write = False
@@ -237,6 +239,8 @@ def deck(slug=None):
 
     data = {
         'id': str(deck.id),
+        'mnemonic': deck.mnemonic,
+        'mnemonic_positions': deck.mnemonic_positions,
         'can_write': can_write,
         'title': deck.title,
         'cards': cards,

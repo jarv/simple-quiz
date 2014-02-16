@@ -1,12 +1,16 @@
 class DeckModel extends Backbone.Model
   defaults: ->
     new_card: false
+
+
 class CardModel extends Backbone.Model
   defaults: ->
     is_selected: false
     selected_card: null
   toggle_selected: ->
     @set({'is_selected': !@get('is_selected')})
+
+
 class CardList extends Backbone.Collection
   model: CardModel
   selected: ->
@@ -74,7 +78,6 @@ class QuizView extends Backbone.View
 
 # game board
 class BoardView extends Backbone.View
-
   CardStates =
     review: 0
     correct: 1
@@ -95,36 +98,65 @@ class BoardView extends Backbone.View
   startQuiz: ->
     # hide the board
     $('#container').hide()
-    # hide the detailed card view
+    # hide the header and detailed card view
+    $('#deck_header').hide()
     $('#quiz_input').hide()
+    # show the mnemonic
+    $('#quiz_mnemonic').html(active_deck.toJSON().mnemonic.join(' '))
     $('#quiz').show()
-    # create a copy for the quiz
-    to_quiz = (card for card in active_deck.toJSON().cards when card.due)
+    round_time = active_deck.toJSON().mnemonic.length * 5000
+    mnemonics = active_deck.toJSON().mnemonic
+    mnemonic_cnt = 0
+    active_deck.round_time = active_deck.toJSON().round_time
+    to_quiz = active_deck.toJSON().cards
     # shuffle the cards to quiz
     to_quiz = _.shuffle(to_quiz)
-    # for multiple choice display
-    all_cards = _.clone(to_quiz)
-    # pre-load images for all cards
-    # for multiple choice
-    for c in all_cards
+    $boxes = []
+    for c in to_quiz
       if c.front_img
         $("<img />").attr("src", c.front_img)
         $("<img />").attr("src", c.front_img + '/thumb')
-    show_card = () ->
-      card = to_quiz.shift()
-      $('#quiz_question').html(_.template( $("#quiz_question_template").html(), card))
-      $('#multi_choice').html('')
-      all_cards = _.shuffle(all_cards)
-      cnt = 0
-      for c in all_cards.slice(0,8)
-        console.log(cnt)
-        cnt++
-        $box = $(_.template( $("#multi_choice_template").html(), c))
-        $('#multi_choice').append($box).masonry('reload')
-      if to_quiz.length >= 1
-        setTimeout(show_card, 1500)
-  
-    setTimeout(show_card, 1500)
+      # Create an array of boxes for masonry
+      $boxes.push($(_.template( $("#quiz_answer_template").html(), c)))
+    for $box in $boxes
+      $('#quiz_answer').append($box).masonry('reload')
+
+    game_loop = () ->
+      # Runs every second
+      cur_time = Math.floor(new Date().getTime() / 1000)
+      if (c for c in to_quiz when not c.blur).length > 1
+        to_blur = _.sample((c for c in to_quiz when c.answer != mnemonic_cnt and not c.blur))
+        pos_to_blur = $.inArray(to_blur, to_quiz)
+        to_quiz[pos_to_blur].blur = true
+        $boxes[pos_to_blur].addClass('blur')
+      console.log(cur_time)
+      console.log(active_deck.start_time)
+      console.log(cur_time - active_deck.start_time)
+      console.log(active_deck.round_time)
+      if cur_time - active_deck.start_time >= active_deck.round_time
+        for $box in $boxes
+          $box.removeClass('blur')
+        for c in to_quiz
+          c.blur = false
+        console.log('removing: ' + mnemonic_cnt)
+        console.log(to_quiz)
+        to_remove = (c for c in to_quiz when c.answer == mnemonic_cnt)[0]
+        console.log(to_remove)
+        pos_to_remove = $.inArray(to_remove, to_quiz)
+        console.log('pos_to_remove')
+        console.log(pos_to_remove)
+        $('#quiz_answer').masonry('remove', $boxes[pos_to_remove]).masonry('reload')
+        to_quiz.splice(pos_to_remove, 1)
+        $boxes.splice(pos_to_remove, 1)
+        mnemonic_cnt += 1
+        start_time = Math.floor(new Date().getTime() / 1000)
+        game_loop()
+
+      setTimeout(game_loop, 1000)
+
+    active_deck.start_time = Math.floor(new Date().getTime() / 1000)
+    setTimeout(game_loop, 1000)
+          
 
     undefined
   hideQuizInput: ->
@@ -149,6 +181,8 @@ class BoardView extends Backbone.View
     # Populate the featured deck list
     $.get('featured_decks', (data) ->
       json_data = $.parseJSON(data)
+      # Create the list of featured
+      # decks on the sidebar
       _.each(json_data, (f_data) ->
         template = _.template( $("#featured_template").html(), f_data )
         $('#featured').prepend(template)
@@ -164,7 +198,7 @@ class BoardView extends Backbone.View
     $box = $(view.render().el)
     $container = @$('#container')
     $box.imagesLoaded( ()->
-      $('#container').prepend( $box ).masonry('reload')
+      $('#container').append( $box ).masonry('reload')
     )
     undefined
   addCard: (e) ->
@@ -279,7 +313,9 @@ app_router = new AppRouter()
 active_cards = new CardList()
 deck_view = new BoardView({ })
 # always will be the currently selected deck
-active_deck = new DeckModel({})
+active_deck = new DeckModel({ })
+
+
 user_card_data = {}
 
 app_router.on('route:getDeck', (id) ->
@@ -290,6 +326,8 @@ app_router.on('route:getDeck', (id) ->
       # clear the board
       $('#container').html('')
       $('#container').show()
+      # update the mnemonic
+      $('#mnemonic').html(active_deck.toJSON().mnemonic.join(" "))
       $.each(response.cards, (i, card) ->
         active_cards.add(card)
         undefined
@@ -306,6 +344,7 @@ app_router.on('route:getDeck', (id) ->
         $('#add_card').hide()
         $('#quiz_input_submit').hide()
         $('.icon_label').hide()
+      console.log(active_deck.toJSON())
       undefined
     error: (model, response) ->
       console.log(
@@ -322,8 +361,8 @@ $(document).ready(() ->
   Backbone.history.start()
   # initialize the board
 
-  $multi_choice = $('#multi_choice')
-  $multi_choice.masonry({
+  $quiz_answer = $('#quiz_answer')
+  $quiz_answer.masonry({
     itemSelector : '.box',
     columnWidth : 10,
     isAnimated: false

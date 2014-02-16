@@ -90,12 +90,16 @@
         <div id="deck_header">
           <div id="add_card"><a id="click_add_card" href="#">Add Card</a></div>
           <div id="start_quiz"><a id="click_start_quiz" href="#">Start Quiz</a></div>
+          <div id="mnemonic"></div>
         </div>
 
         <div id="container" style="display:none"> </div>
         <div id="quiz" style="display: none">
-          <div id="quiz_question"></div>
-          <div id="quiz_answer"><div id="multi_choice"></div></div>
+          <div id="quiz_question">
+            <div id="quiz_mnemonic"></div>
+            <input id="quiz_answer_input" name="answer" type="text" value="" />
+          </div>
+          <div id="quiz_answer"></div>
         </div>
       </div>
 
@@ -103,7 +107,7 @@
       <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
       <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
       <script src="js/vendor/jquery.masonry.min.js"></script>
-      <script src="js/vendor/underscore-min.js"></script>
+      <script src="js/vendor/underscore-1.5.2.js"></script>
       <script src="js/vendor/jquery.ui.widget.js"></script>
       <script src="js/vendor/load-image.min.js"></script>
       <script src="js/vendor/canvas-to-blob.min.js"></script>
@@ -157,10 +161,12 @@
         </form>
       </script>
 
-      <script type="text/template" id="multi_choice_template">
+      <script type="text/template" id="quiz_answer_template">
         <div class="box">
-          <div class="multi_box">
-          </div>
+          <% if (front_img) { %>
+          <div class='front_img'><img src="<%= front_img %>/thumb" /></div>
+          <% } %>
+          <div class='front_text'><%= front_text %></div>
         </div>
       </script>
 

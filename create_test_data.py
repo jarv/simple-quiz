@@ -1,5 +1,6 @@
 import os
 os.environ['FLASK_SETTINGS'] = 'cfg/prod.py'
+import sys
 from simple_quiz.models import Deck, Card, User, user_datastore, UserCardData, CardStates
 from loremipsum import get_sentences
 from random import choice, sample, randrange
@@ -28,6 +29,7 @@ card_types = [CardTypes.img_only, CardTypes.text_only,
 
 # Create 100 decks
 deck_titles = get_sentences(100)
+mnemonics = get_sentences(100)
 
 data = []
 
@@ -36,8 +38,8 @@ imgs = ['sample_imgs/' + img for img in os.listdir(
 
 for x in range(0, 10):
     card_questions = get_sentences(20)
-    card_answers = get_sentences(20)
     d = Deck.objects.create(slug=str(x), featured=True)
+    d.mnemonic = mnemonics[x][:80]
     user = user_datastore.find_user(email='test-{}@example.com'.format(choice(range(10))))
     d.user = user
     d.title = deck_titles[x][:50]

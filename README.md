@@ -1,3 +1,16 @@
+# Mnemonics
+
+* colors - richard of york gains battles in vain
+* roman numerals - I veer across but lucy can't drink milk
+* two letter scrabble words -
+
+# Quiz
+
+[ Review ]
+    - type or click answer before others disappear with the mnemonic highlighted
+[ Learning ]
+    - type answer to make card appear
+
 
 ## CardStates
 * review

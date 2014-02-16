@@ -1,0 +1,28 @@
+- mnemonic: ["Richard", "of", "York", "Gained", "Battles", "in", "Vain"]
+  mnemonic_positions: [0, 0, 0, 0, 0, 0]
+  slug: ROYGBIV
+  title: Colors of the rainbow
+  user: test@example.com
+  featured: True
+  cards:
+    - front_text: red
+      front_img: images/red.png
+      answer: 0
+    - front_text: orange
+      front_img: images/orange.png
+      answer: 1
+    - front_text: yellow
+      front_img: images/yellow.png
+      answer: 2
+    - front_text: green
+      front_img: images/green.png
+      answer: 3
+    - front_text: blue
+      front_img: images/blue.png
+      answer: 4
+    - front_text: indigo
+      front_img: images/indigo.png
+      answer: 5
+    - front_text: violet
+      front_img: images/violet.png
+      answer: 6
