@@ -111,51 +111,43 @@ class BoardView extends Backbone.View
     to_quiz = active_deck.toJSON().cards
     # shuffle the cards to quiz
     to_quiz = _.shuffle(to_quiz)
-    $boxes = []
     for c in to_quiz
       if c.front_img
         $("<img />").attr("src", c.front_img)
         $("<img />").attr("src", c.front_img + '/thumb')
       # Create an array of boxes for masonry
-      $boxes.push($(_.template( $("#quiz_answer_template").html(), c)))
-    for $box in $boxes
-      $('#quiz_answer').append($box).masonry('reload')
+      to_quiz.$box = $(_.template( $("#quiz_answer_template").html(), c))
+      $('#quiz_answer').append(to_quiz.$box).masonry('reload')
 
     game_loop = () ->
-      # Runs every second
+      got_answer = false
       cur_time = Math.floor(new Date().getTime() / 1000)
-      if (c for c in to_quiz when not c.blur).length > 1
-        to_blur = _.sample((c for c in to_quiz when c.answer != mnemonic_cnt and not c.blur))
-        pos_to_blur = $.inArray(to_blur, to_quiz)
-        to_quiz[pos_to_blur].blur = true
-        $boxes[pos_to_blur].addClass('blur')
-      console.log(cur_time)
-      console.log(active_deck.start_time)
-      console.log(cur_time - active_deck.start_time)
-      console.log(active_deck.round_time)
-      if cur_time - active_deck.start_time >= active_deck.round_time
-        for $box in $boxes
-          $box.removeClass('blur')
-        for c in to_quiz
-          c.blur = false
-        console.log('removing: ' + mnemonic_cnt)
-        console.log(to_quiz)
-        to_remove = (c for c in to_quiz when c.answer == mnemonic_cnt)[0]
-        console.log(to_remove)
-        pos_to_remove = $.inArray(to_remove, to_quiz)
-        console.log('pos_to_remove')
-        console.log(pos_to_remove)
+      round_time = cur_time - active_deck.start_time
+      answer = (c for c in to_quiz when c.answer == mnemonic_cnt)[0].front_text
+      console.log($('#quiz_answer_input').val())
+      if $('#quiz_answer_input').val() == answer
+        got_answer = true
+      #if (c for c in to_quiz when not c.blur).length > 1
+      #  to_blur = _.sample((c for c in to_quiz when c.answer != mnemonic_cnt and not c.blur))
+      #  pos_to_blur = $.inArray(to_blur, to_quiz)
+      #  to_quiz[pos_to_blur].blur = true
+      #  $boxes[pos_to_blur].addClass('blur')
+      if got_answer or round_time >= active_deck.round_time
+        #  for $box in $boxes
+        #  $box.removeClass('blur')
+        #for c in to_quiz
+        #  c.blur = false
         $('#quiz_answer').masonry('remove', $boxes[pos_to_remove]).masonry('reload')
         to_quiz.splice(pos_to_remove, 1)
         $boxes.splice(pos_to_remove, 1)
         mnemonic_cnt += 1
-        start_time = Math.floor(new Date().getTime() / 1000)
-        game_loop()
+        active_deck.start_time = Math.floor(new Date().getTime() / 1000)
+        $('#quiz_answer_input').val('')
 
-      setTimeout(game_loop, 1000)
+      setTimeout(game_loop, 200)
 
     active_deck.start_time = Math.floor(new Date().getTime() / 1000)
-    setTimeout(game_loop, 1000)
+    setTimeout(game_loop, 100)
           
 
     undefined

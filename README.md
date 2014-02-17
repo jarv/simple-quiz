@@ -3,6 +3,8 @@
 * colors - richard of york gains battles in vain
 * roman numerals - I veer across but lucy can't drink milk
 * two letter scrabble words -
+* house of tudors
+* wives of King Henry the VIII
 
 # Quiz
 

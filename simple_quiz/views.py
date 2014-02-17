@@ -242,6 +242,7 @@ def deck(slug=None):
         'mnemonic': deck.mnemonic,
         'mnemonic_positions': deck.mnemonic_positions,
         'can_write': can_write,
+        'round_time': deck.round_time,
         'title': deck.title,
         'cards': cards,
     }
