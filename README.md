@@ -7,19 +7,41 @@
 * wives of King Henry the VIII
 
 # Quiz
-
 [ Review ]
-    - type or click answer before others disappear with the mnemonic highlighted
-[ Learning ]
+    - type the mnemonic with it displayed
+    - type or click answer before the turn counter is up
+[ Training ]
+    - type the mnemonic with just the mnemonic
     - type answer to make card appear
+[ Learning ]
+    - type the full mnemonic without it displayed
+    - type answer, no mnemonic
+[ Learned ]
 
+## DeckStates
+* mnemonic - [M]
+* training - [T]
+* review - [R]
+* learning - [L]
+* learned - [checkmark]
+
+## DeckCounters
+* num\_traning
+* num\_review
+* num\_learning
+* num\_lapses
 
 ## CardStates
-* review
-* learning
-* correct
-* wrong
+* review - [R]
+* training - [T]
+* learning - [L]
+* learned - [checkmark]
 
+## CardCounters
+* num\_review
+* num\_training
+* num\_learning
+* num\_lapses
 
 
 ## Models

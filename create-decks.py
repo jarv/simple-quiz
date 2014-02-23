@@ -29,7 +29,7 @@ with open('deck-data.yaml') as f:
         d.mnemonic_positions = deck['mnemonic_positions']
         d.title = deck['title']
         d.user = user_datastore.find_user(email=ADMIN_EMAIL)
-        d.round_time = 20
+        d.turn_time = deck['turn_time']
         cards = []
         for card in deck['cards']:
             c = Card.objects.create()

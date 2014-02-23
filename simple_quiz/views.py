@@ -1,10 +1,10 @@
 from simple_quiz import app
 from simple_quiz.models import Deck, Card, CardStates, UserCardData
+from simple_quiz.models import DeckStates, UserDeckData
 from simple_quiz.models import user_datastore, is_authorized
 from flask import request, render_template, abort, make_response
 from flask.ext.security import login_required, LoginForm
 from flask.ext.login import current_user, login_user
-from werkzeug import Response
 
 import simplejson
 from mongoengine.queryset import DoesNotExist
@@ -158,6 +158,7 @@ def featured_decks():
 
     return simplejson.dumps(featured_decks)
 
+
 @app.route('/card_data')
 @login_required
 def card_data():
@@ -180,20 +181,6 @@ def deck(slug=None):
     """
     Returns information about a deck as a
     JSON object.
-
-    {
-        id:
-        title:
-        mnemonic:
-        author-email:
-        author-name:
-        public:
-        can_modify:
-        cards: [
-
-
-        ]
-    }
     """
 
     try:
@@ -208,42 +195,41 @@ def deck(slug=None):
             front_img = 'img/front_img/{cid}/{grid_id}'.format(cid=card.id,
                         grid_id=card['front_img'].grid_id)
 
-        wrong = correct = learning = 0
-        card_state = CardStates.learning
+        card_state = CardStates.review
         if current_user.is_authenticated():
-            card_data = UserCardData.objects.filter(user=current_user.to_dbref(), card=card).first()
-            if card_data:
-                card_state = card_data.card_state
-                wrong = card_data.wrong
-                correct = card_data.correct
-                learning = card_data.learning
+            user_card_data, created = UserCardData.objects.get_or_create(
+                user=current_user.to_dbref(), card=card)
+            if user_card_data:
+                card_state = user_card_data.card_state
 
         # TODO: Need to calculate whether the card is due
         cards.append(dict(front_img=front_img,
                           front_text=card['front_text'],
                           id=str(card.id),
-                          wrong=wrong,
-                          correct=correct,
-                          learning=learning,
                           card_state=card_state,
-                          answer=card['answer'],
                           due=True))
 
     can_write = False
 
+    deck_state = DeckStates.review
     if current_user.is_authenticated():
         admin_role = user_datastore.find_role("admin")
         if admin_role in current_user.roles:
             # admins can write to all decks
             can_write = True
+        user_deck_data, created = UserDeckData.objects.get_or_create(
+            user=current_user.to_dbref(), deck=deck)
+        if user_deck_data:
+            deck_state = user_deck_data.deck_state
 
     data = {
         'id': str(deck.id),
         'mnemonic': deck.mnemonic,
         'mnemonic_positions': deck.mnemonic_positions,
         'can_write': can_write,
-        'round_time': deck.round_time,
+        'turn_time': deck.turn_time,
         'title': deck.title,
         'cards': cards,
+        'deck_state': deck_state,
     }
     return simplejson.dumps(data)

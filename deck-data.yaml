@@ -4,6 +4,7 @@
   title: Colors of the rainbow
   user: test@example.com
   featured: True
+  turn_time: 20
   cards:
     - front_text: red
       front_img: images/red.png
