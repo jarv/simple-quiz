@@ -4,19 +4,17 @@ from flask.ext.security import Security, MongoEngineUserDatastore, \
 import datetime
 
 class CardStates:
-    review = 1
-    training = 2
-    correct = 3
-    learning = 4
-    learned = 5
+    review = 'review'
+    training = 'training'
+    learning = 'learning'
+    learned = 'learned'
 
 class DeckStates:
-    mnemonic = 0
-    review = 1
-    training = 2
-    correct = 3
-    learning = 4
-    learned = 5
+    mnemonic = 'mnemonic'
+    review = 'review'
+    training = 'training'
+    learning = 'learning'
+    learned = 'learned'
 
 
 # Setup Flask-Security
@@ -29,13 +27,13 @@ class Role(db.Document, RoleMixin):
 class UserDeckData(db.Document):
     deck = db.ReferenceField('Deck')
     user = db.ReferenceField('User')
-    deck_state = db.IntField(choices=[DeckStates.mnemonic, DeckStates.training, DeckStates.learning, DeckStates.learned], default=DeckStates.mnemonic)
+    deck_state = db.StringField(choices=[DeckStates.mnemonic, DeckStates.training, DeckStates.learning, DeckStates.learned], default=DeckStates.mnemonic)
 
 
 class UserCardData(db.Document):
     card = db.ReferenceField('Card')
     user = db.ReferenceField('User')
-    card_state = db.IntField(choices=[CardStates.review, CardStates.training, CardStates.learning, CardStates.learned], default=CardStates.review)
+    card_state = db.StringField(choices=[CardStates.review, CardStates.training, CardStates.learning, CardStates.learned], default=CardStates.review)
     # card history counts
     wrong = db.IntField()
     correct = db.IntField()
@@ -70,7 +68,8 @@ class Deck(db.Document):
     cards = db.ListField(db.ReferenceField('Card'), default=[])
     mnemonic = db.ListField(default=[])
     mnemonic_positions = db.ListField(default=[])
-    turn_time = db.IntField()
+    turn_time = db.IntField(default=20)
+    mnemonic_time = db.IntField(default=20)
 
 
 class Card(db.Document):

@@ -19,7 +19,6 @@
 [ Learned ]
 
 ## DeckStates
-* mnemonic - [M]
 * training - [T]
 * review - [R]
 * learning - [L]
@@ -32,8 +31,8 @@
 * num\_lapses
 
 ## CardStates
-* review - [R]
 * training - [T]
+* review - [R]
 * learning - [L]
 * learned - [checkmark]
 

@@ -141,20 +141,20 @@ def featured_decks():
         return simplejson.dumps({})
     featured_decks = []
     for deck in decks:
-
-        wrong = correct = learning = 0
+        deck_state = DeckStates.review
         if current_user.is_authenticated():
-            user_cards = UserCardData.objects.filter(user=current_user.to_dbref(), card__in=deck.cards)
-            wrong = user_cards.filter(card_state=CardStates.wrong).count()
-            correct = user_cards.filter(card_state=CardStates.correct).count()
-            learning = user_cards.filter(card_state=CardStates.learning).count()
+            user_deck_data, created = UserDeckData.objects.get_or_create(
+                user=current_user.to_dbref(), deck=deck)
+            if user_deck_data:
+                deck_state = user_deck_data.deck_state
 
-        featured_decks.append(
-            {'title': deck['title'],
-             'slug': deck['slug'],
-             'wrong': wrong,
-             'correct': correct,
-             'learning': learning})
+
+        featured_decks.append(dict(
+            title=deck['title'],
+            slug=deck['slug'],
+            deck_state=deck_state,
+            )
+        )
 
     return simplejson.dumps(featured_decks)
 
@@ -207,7 +207,7 @@ def deck(slug=None):
                           front_text=card['front_text'],
                           id=str(card.id),
                           card_state=card_state,
-                          due=True))
+                          due=True,))
 
     can_write = False
 
@@ -222,14 +222,14 @@ def deck(slug=None):
         if user_deck_data:
             deck_state = user_deck_data.deck_state
 
-    data = {
-        'id': str(deck.id),
-        'mnemonic': deck.mnemonic,
-        'mnemonic_positions': deck.mnemonic_positions,
-        'can_write': can_write,
-        'turn_time': deck.turn_time,
-        'title': deck.title,
-        'cards': cards,
-        'deck_state': deck_state,
-    }
+    data = dict(
+        id=str(deck.id),
+        mnemonic=deck.mnemonic,
+        mnemonic_positions=deck.mnemonic_positions,
+        can_write=can_write,
+        turn_time=deck.turn_time,
+        title=deck.title,
+        cards=cards,
+        deck_state=deck_state,
+    )
     return simplejson.dumps(data)

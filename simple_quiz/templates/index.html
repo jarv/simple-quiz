@@ -124,15 +124,14 @@
           <div class='front_img'><img class="board_preview" src="<%= front_img %>/thumb" /></div>
           <% } %>
           <div class='front_text'><%= front_text %></div>
+          <div class='card_state'> [ <%= card_state %> ] </div>
         </div>
       </script>
 
       <script type="text/template" id="featured_template">
         <tr>
         <td><a class="featured_item" id="click_select_deck" href="#deck/<%= slug %>"><%= title %></a></td>
-        <td><%= wrong %></td>
-        <td><%= correct %></td>
-        <td><%= learning %></td>
+        <td><%= deck_state %></td>
         </tr>
       </script>
 
@@ -170,12 +169,6 @@
         </div>
       </script>
 
-      <script type="text/template" id="quiz_question_template">
-        <% if (front_img) { %>
-          <img class="board_preview" src="<%= front_img %>" />
-        <% } %>
-        <%= front_text %>
-      </script>
       <script src="js/plugins.js"></script>
       <script src="js/simple-quiz.js"></script>
       <!--

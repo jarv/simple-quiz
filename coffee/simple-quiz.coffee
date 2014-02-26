@@ -36,6 +36,7 @@ class CardView extends Backbone.View
     variables = {
       front_text: @model.get('front_text')
       front_img: @model.get('front_img')
+      card_state: @model.get('card_state')
     }
     template = _.template($("#box_template").html(), variables)
     @$el.html(template)
@@ -79,20 +80,19 @@ class QuizView extends Backbone.View
 # game board
 class BoardView extends Backbone.View
 
-  CardStates =
-    review: 1
-    training: 2
-    correct: 3
-    learning: 4
-    learned: 5
+  CardStates:
+    review: 'review'
+    training: 'training'
+    learning: 'learning'
+    learned: 'learned'
 
-  DeckStates =
-    mnemonic: 0
-    review: 1
-    training: 2
-    correct: 3
-    learning: 4
-    learned: 5
+  DeckStates:
+    mnemonic: 'mnemonic'
+    review: 'review'
+    training: 'training'
+    learning: 'learning'
+    learned: 'learned'
+
 
   el: $('#deck_view')
   events:
@@ -111,15 +111,18 @@ class BoardView extends Backbone.View
     # hide the header and detailed card view
     $('#deck_header').hide()
     $('#quiz_input').hide()
-    # show the mnemonic
-    $('#quiz_mnemonic').html(active_deck.toJSON().mnemonic.join(' '))
     $('#quiz').show()
-    mnemonics = active_deck.toJSON().mnemonic
+    mnemonic = active_deck.toJSON().mnemonic
+    deck_state = active_deck.toJSON().deck_state
     mnemonic_pos = 0
     to_quiz = active_deck.toJSON().cards
     answers = (card for card in to_quiz)
     # shuffle the cards to quiz
     to_quiz = _.shuffle(to_quiz)
+    got_mnemonic = false
+    mnemonic_timed_out = false
+    $('#quiz_answer_input').focus()
+
     for c in to_quiz
       if c.front_img
         # cache the images
@@ -127,28 +130,48 @@ class BoardView extends Backbone.View
         $("<img />").attr("src", c.front_img + '/thumb')
       # Create an array of boxes for masonry
       c.$box = $(_.template( $("#quiz_answer_template").html(), c))
-      $('#quiz_answer').append(c.$box).masonry('reload')
+
+    switch deck_state
+      when "review"
+        # show the mnemonic
+        $('#quiz_mnemonic').html(active_deck.toJSON().mnemonic.join(' '))
+    
 
     start_time = Math.floor(new Date().getTime() / 1000)
 
     game_loop = () ->
-      got_answer = false
       cur_time = Math.floor(new Date().getTime() / 1000)
-      answer_string = answers[mnemonic_pos].front_text.toLowerCase().replace(/[^\w]/g, '')
-      check_string = $('#quiz_answer_input').val().toLowerCase().replace(/[^\w]/g, '')
-      
       turn_time = cur_time - start_time
-      if answer_string == check_string
-        got_answer = answers.shift()
-      if got_answer or turn_time >= active_deck.toJSON().turn_time
-        for c in to_quiz
-          $('#quiz_answer').masonry('remove', c.$box)
-        to_quiz = _.shuffle(to_quiz)
-        for c in to_quiz
-          $('#quiz_answer').append(c.$box).masonry('reload')
-        start_time = Math.floor(new Date().getTime() / 1000)
-        $('#quiz_answer_input').val('')
-        got_answer = false
+      switch deck_state
+        when "review"
+          if not got_mnemonic or mnemonic_timed_out
+            check_string = $('#quiz_answer_input').val().toLowerCase().replace(/[^\w]/g, '')
+            answer_string = mnemonic.join("").toLowerCase().replace(/[^\w]/g, '')
+            if answer_string == check_string
+              got_mnemonic = true
+            if turn_time >= active_deck.toJSON().mnemonic_time
+              start_time = Math.floor(new Date().getTime() / 1000)
+              mnemonic_timed_out = true
+            if got_mnemonic or mnemonic_timed_out
+              $('#quiz_answer_input').val('')
+              for c in to_quiz
+                $('#quiz_answer').append(c.$box).masonry('reload')
+          else
+            got_answer = false
+
+            check_string = $('#quiz_answer_input').val().toLowerCase().replace(/[^\w]/g, '')
+            answer_string = answers[mnemonic_pos].front_text.toLowerCase().replace(/[^\w]/g, '')
+            if answer_string == check_string
+              got_answer = answers.shift()
+            if got_answer or turn_time >= active_deck.toJSON().turn_time
+              for c in to_quiz
+                $('#quiz_answer').masonry('remove', c.$box)
+              to_quiz = _.shuffle(to_quiz)
+              for c in to_quiz
+                $('#quiz_answer').append(c.$box).masonry('reload')
+              start_time = Math.floor(new Date().getTime() / 1000)
+              $('#quiz_answer_input').val('')
+              got_answer = false
 
       setTimeout(game_loop, 200)
     setTimeout(game_loop, 200)
