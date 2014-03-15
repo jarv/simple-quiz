@@ -159,21 +159,21 @@ def featured_decks():
     return simplejson.dumps(featured_decks)
 
 
-@app.route('/card_data')
-@login_required
-def card_data():
-    """
-    Returns a dictionary of
-    cards for a user
-    """
-    if 'card_ids' in request.form:
-        # filter returned data by list of
-        # card ids
-        pass
-    else:
-        card_data = {str(c.card.id): {'wrong': c.wrong, 'correct': c.correct, 'learning': c.learning} for c in current_user.card_data}
-    return simplejson.dumps(card_data)
-
+#@app.route('/card_data')
+#@login_required
+#def card_data():
+#    """
+#    Returns a dictionary of
+#    cards for a user
+#    """
+#    if 'card_ids' in request.form:
+#        # filter returned data by list of
+#        # card ids
+#        pass
+#    else:
+#        card_data = {str(c.card.id): {'wrong': c.wrong, 'correct': c.correct, 'learning': c.learning} for c in current_user.card_data}
+#    return simplejson.dumps(card_data)
+#
 
 @app.route('/deck/<slug>')
 #@login_required

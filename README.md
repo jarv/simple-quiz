@@ -11,7 +11,7 @@
     - type the mnemonic with it displayed
     - type or click answer before the turn counter is up
 [ Training ]
-    - type the mnemonic with just the mnemonic
+    - type the mnemonic with just the mnemonic (flashed) 
     - type answer to make card appear
 [ Learning ]
     - type the full mnemonic without it displayed
@@ -19,8 +19,8 @@
 [ Learned ]
 
 ## DeckStates
-* training - [T]
 * review - [R]
+* training - [T]
 * learning - [L]
 * learned - [checkmark]
 

@@ -2,6 +2,22 @@ class DeckModel extends Backbone.Model
   defaults: ->
     new_card: false
 
+# featured decks
+class FeaturedModel extends Backbone.Model
+  defaults: ->
+    title: "None"
+    slug: "None"
+    deck_state: "None"
+
+class FeaturedDeckView extends Backbone.View
+  el: '#featured'
+  template: _.template($("#featured_template").html())
+  render: ->
+    @$el.html(this.template(this.model.toJSON()))
+    @
+
+class FeaturedDeckList extends Backbone.Collection
+  model: FeaturedModel
 
 class CardModel extends Backbone.Model
   defaults: ->
@@ -15,10 +31,12 @@ class CardList extends Backbone.Collection
   model: CardModel
   selected: ->
     @where({is_selected: true})
+
 class AppRouter extends Backbone.Router
   routes:
     "deck/:id": "getDeck"
     "*actions": "defaultRoute"
+
 class CardView extends Backbone.View
   tagName: 'div'
   attributes: ->
@@ -134,7 +152,7 @@ class BoardView extends Backbone.View
     switch deck_state
       when "review"
         # show the mnemonic
-        $('#quiz_mnemonic').html(active_deck.toJSON().mnemonic.join(' '))
+        $('#quiz_mnemonic').html(active_deck.toJSON().mnemonic.join(' ')).show()
     
 
     start_time = Math.floor(new Date().getTime() / 1000)
@@ -142,27 +160,117 @@ class BoardView extends Backbone.View
     game_loop = () ->
       cur_time = Math.floor(new Date().getTime() / 1000)
       turn_time = cur_time - start_time
+      check_string = $('#quiz_answer_input').val().toLowerCase().replace(/[^\w]/g, '')
+      mnemonic_string = mnemonic.join("").toLowerCase().replace(/[^\w]/g, '')
+      answer_string = answers[mnemonic_pos].front_text.toLowerCase().replace(/[^\w]/g, '')
       switch deck_state
-        when "review"
+        when "learning"
           if not got_mnemonic or mnemonic_timed_out
-            check_string = $('#quiz_answer_input').val().toLowerCase().replace(/[^\w]/g, '')
-            answer_string = mnemonic.join("").toLowerCase().replace(/[^\w]/g, '')
-            if answer_string == check_string
+            if mnemonic_string == check_string
               got_mnemonic = true
             if turn_time >= active_deck.toJSON().mnemonic_time
               start_time = Math.floor(new Date().getTime() / 1000)
               mnemonic_timed_out = true
             if got_mnemonic or mnemonic_timed_out
               $('#quiz_answer_input').val('')
+          else
+            got_answer = false
+            if answer_string == check_string
+              got_answer = answers.shift()
+              if answers.length == 0
+                # round over
+                for c in to_quiz
+                  $('#quiz_answer').masonry('remove', c.$box)
+                mnemonic_pos = 0
+                answers = (card for card in to_quiz)
+                # shuffle the cards to quiz
+                to_quiz = _.shuffle(to_quiz)
+                got_mnemonic = false
+                mnemonic_timed_out = false
+                $('#quiz_answer_input').val('')
+                deck_state = "learning"
+                break
+
+            if got_answer or turn_time >= active_deck.toJSON().turn_time
+              for c in to_quiz
+                $('#quiz_answer').masonry('remove', c.$box)
+              to_quiz = _.shuffle(to_quiz)
+              for c in to_quiz
+                $('#quiz_answer').append(c.$box).masonry('reload')
+              start_time = Math.floor(new Date().getTime() / 1000)
+              $('#quiz_answer_input').val('')
+              got_answer = false
+
+
+        when "training"
+          if not got_mnemonic or mnemonic_timed_out
+            if mnemonic_string == check_string
+              got_mnemonic = true
+            if turn_time >= active_deck.toJSON().mnemonic_time
+              mnemonic_timed_out = true
+            if got_mnemonic or mnemonic_timed_out
+              start_time = Math.floor(new Date().getTime() / 1000)
+              $('#quiz_answer_input').val('')
+          else
+            got_answer = false
+            if answer_string == check_string
+              got_answer = answers.shift()
+              if answers.length == 0
+                # round over
+                for c in to_quiz
+                  $('#quiz_answer').masonry('remove', c.$box)
+                mnemonic_pos = 0
+                answers = (card for card in to_quiz)
+                # shuffle the cards to quiz
+                to_quiz = _.shuffle(to_quiz)
+                got_mnemonic = false
+                mnemonic_timed_out = false
+                $('#quiz_mnemonic').hide()
+                $('#quiz_answer_input').val('')
+                deck_state = "learning"
+                break
+
+            if got_answer or turn_time >= active_deck.toJSON().turn_time
+              for c in to_quiz
+                $('#quiz_answer').masonry('remove', c.$box)
+              to_quiz = _.shuffle(to_quiz)
+              for c in to_quiz
+                $('#quiz_answer').append(c.$box).masonry('reload')
+              start_time = Math.floor(new Date().getTime() / 1000)
+              $('#quiz_answer_input').val('')
+              got_answer = false
+
+             
+ 
+        when "review"
+          if not got_mnemonic or mnemonic_timed_out
+            if mnemonic_string == check_string
+              got_mnemonic = true
+            if turn_time >= active_deck.toJSON().mnemonic_time
+              mnemonic_timed_out = true
+            if got_mnemonic or mnemonic_timed_out
+              start_time = Math.floor(new Date().getTime() / 1000)
+              $('#quiz_answer_input').val('')
               for c in to_quiz
                 $('#quiz_answer').append(c.$box).masonry('reload')
           else
             got_answer = false
-
-            check_string = $('#quiz_answer_input').val().toLowerCase().replace(/[^\w]/g, '')
-            answer_string = answers[mnemonic_pos].front_text.toLowerCase().replace(/[^\w]/g, '')
             if answer_string == check_string
               got_answer = answers.shift()
+              console.log(answers.length)
+              if answers.length == 0
+                # round over
+                for c in to_quiz
+                  $('#quiz_answer').masonry('remove', c.$box)
+                mnemonic_pos = 0
+                answers = (card for card in to_quiz)
+                # shuffle the cards to quiz
+                to_quiz = _.shuffle(to_quiz)
+                got_mnemonic = false
+                mnemonic_timed_out = false
+                deck_state = "training"
+                $('#quiz_answer_input').val('')
+                break
             if got_answer or turn_time >= active_deck.toJSON().turn_time
               for c in to_quiz
                 $('#quiz_answer').masonry('remove', c.$box)
@@ -330,6 +438,7 @@ class BoardView extends Backbone.View
 
 app_router = new AppRouter()
 active_cards = new CardList()
+featured_decks = new FeaturedDeckList()
 deck_view = new BoardView({ })
 # always will be the currently selected deck
 active_deck = new DeckModel({ })
