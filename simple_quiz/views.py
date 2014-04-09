@@ -150,6 +150,7 @@ def featured_decks():
 
 
         featured_decks.append(dict(
+            id=str(deck.id),
             title=deck['title'],
             slug=deck['slug'],
             deck_state=deck_state,

@@ -13,10 +13,15 @@ class FeaturedDeckView extends Backbone.View
   el: '#featured'
   template: _.template($("#featured_template").html())
   render: ->
-    @$el.html(this.template(this.model.toJSON()))
+    that = this
+    @$el.html('')
+    featured_decks.each((featured_deck) ->
+      that.$el.append(that.template(featured_deck.toJSON()))
+    )
     @
 
 class FeaturedDeckList extends Backbone.Collection
+  url: '/featured_decks'
   model: FeaturedModel
 
 class CardModel extends Backbone.Model
@@ -125,6 +130,9 @@ class BoardView extends Backbone.View
     'mouseleave #content': 'leaveBoard'
   startQuiz: ->
     # hide the board
+    console.log(active_deck.id)
+    featured = featured_decks.get(active_deck.id)
+    featured.set({"deck_state": "foo"})
     $('#container').hide()
     # hide the header and detailed card view
     $('#deck_header').hide()
@@ -132,6 +140,7 @@ class BoardView extends Backbone.View
     $('#quiz').show()
     mnemonic = active_deck.toJSON().mnemonic
     deck_state = active_deck.toJSON().deck_state
+    console.log(deck_state)
     mnemonic_pos = 0
     to_quiz = active_deck.toJSON().cards
     answers = (card for card in to_quiz)
@@ -305,20 +314,30 @@ class BoardView extends Backbone.View
   initialize: ->
     # Listen for change events active card list
     @listenTo(active_cards, 'add', @addOne)
-    # Populate the featured deck list
-    $.get('featured_decks', (data) ->
-      json_data = $.parseJSON(data)
-      # Create the list of featured
-      # decks on the sidebar
-      _.each(json_data, (f_data) ->
-        template = _.template( $("#featured_template").html(), f_data )
-        $('#featured').prepend(template)
-      )
-      $("#accordion").accordion({
-        active: false,
-        collapsible: true
-      })
-    )
+    @listenTo(featured_decks, 'add', @addFeaturedDecks)
+    @listenTo(featured_decks, 'change', @changeFeaturedDecks)
+    # fetch featured decks
+    featured_decks.fetch()
+    console.log(featured_decks)
+    undefined
+  changeFeaturedDecks: (featured_deck) ->
+    console.log('changing featured deck')
+    featured_deck_view = new FeaturedDeckView({model: featured_deck})
+    featured_deck_view.render()
+    #$("#accordion").accordion({
+    #  active: false,
+    #  collapsible: true
+    #})
+    undefined
+
+  addFeaturedDecks: (featured_deck) ->
+    console.log('adding featured deck')
+    featured_deck_view = new FeaturedDeckView({model: featured_deck})
+    featured_deck_view.render()
+    #$("#accordion").accordion({
+    #  active: false,
+    #  collapsible: true
+    #})
     undefined
   addOne: (card) ->
     view = new CardView({model: card})
